@@ -1,0 +1,18 @@
+# EIT Tracking Application 
+This app is buil to manage the incoming cohorts of EIT 
+## Installation 
+- Make sure to have the meteor JS ('https://www.meteor.com')
+- clone the application 
+
+```bash
+$ git  clone https://github.com/Aakoworld/eit-form.git
+```
+- Get info to the directory and start the meteor server 
+
+```bash 
+$ cd eit-form 
+$ meteor 
+```
+## License 
+
+This project is covered under the **MIT License agreement ** and is free to use 
