@@ -1,13 +1,16 @@
 <body>
-
 	<h2 class="ui icon header">
   <i class="user icon"></i>
   <div class="content">
     EIT Registration Manager.
     <div class="sub header">Welcome, Class of 2019.</div>
+    
+<div style="float: right; margin: 0 20px;">{{> loginButtons}} </div>
+<div style="clear:both"></div>
+
   </div>
 </h2>
-
+{{#if currentUser}}
 <form class="ui form" >
   <div class="field">
     <label>First Name</label>
@@ -33,7 +36,7 @@
   </div>
   <button class="ui button" type="submit">Submit</button>
 </form>
-
+{{/if}}
 <table class = 'table'>
 	<tr>
 		<th></th>
