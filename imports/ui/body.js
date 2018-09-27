@@ -1,34 +1,79 @@
-import {Template} from 'meteor/templating';
-import {Eits} from '../api/eits.js';
-import "./body.html"
-import "./templates/eit_list.js"
-import "./templates/eit.js"
+import {Template} from "meteor/templating";
 
-Template.body.events({
-  'submit .form'(event) {
-    // Prevent default browser form submit
-    event.preventDefault();
- 
-    // Get value from form element
-    const target = event.target;
-    const firstName = target.firstname.value;
-    const lastName = target.lastname.value;
-    const gender = target.gender.value;
-    const dob = target.dob.value;
- 
-    // Insert a task into the collection
-    Eits.insert({ 
-    	Firstname : firstName, 
-    	Lastname : lastName, 
-    	Gender : gender, 
-    	DOB : dob
-    });
- 
-    // Clear form
-    target.firstname.value = '';
-    target.lastname.value = '';
-    target.gender.value = '';
-    target.dob.value = '';
-  },
+import "./body.html";
+import {EITs} from "../api/EITs.js";
+
+var selectedEits = [];
+var createMode = true;
+
+Template.body.helpers({
+    eits: function () {
+        return EITs.find({}, {
+            sort: {
+                createdAt: -1
+            }
+        });
+    }
 });
 
+Template.eitList.helpers({
+    dob: function () {
+        return this.dob.toDateString();
+    },
+});
+
+Template.body.events({
+    'submit .form'(event) {
+        event.preventDefault();
+        const target = event.target;
+
+        var firstname = target.firstname.value;
+        var lastname = target.lastname.value;
+        var gender = target.gender.value;
+
+        var dob = target.dob.value.split("-");
+        var dob = new Date(Number(dob[0]), Number(dob[1]) - 1, Number(dob[2]));
+
+        var eit_id = target.eit_id.value;
+
+        if (!createMode && eit_id) {
+            Meteor.call('eit.update', eit_id, firstname, lastname, gender, dob);
+            createMode = true;
+        } else {
+            Meteor.call('eit.insert', firstname, lastname, gender, dob);
+        }
+        target.reset();
+
+    },
+    'click .single-edit'() {
+        var id = this._id;
+        var theeit = EITs.find({_id: id}).fetch()[0];
+
+        var target = document.getElementById('form');
+
+        target.firstname.value = theeit.firstname;
+        target.lastname.value = theeit.lastname;
+        target.gender.value = theeit.gender;
+        target.dob.value = theeit.dob.toISOString().substring(0, 10);
+
+        target.eit_id.value = id;
+
+        createMode = false;
+    },
+    'click .single-delete'() {
+        Meteor.call('eit.delete', this._id)
+    },
+    'change .checkbox'(event) {
+        if (event.target.checked) {
+            selectedEits.push(this._id);
+        } else {
+            selectedEits.splice(selectedEits.indexOf(this._id), 1);
+        }
+        console.log(selectedEits);
+    },
+    'click .bulk-delete'() {
+        selectedEits.forEach(function (id) {
+            Meteor.call('eit.delete', id)
+        });
+    }
+});
